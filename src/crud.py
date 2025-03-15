@@ -67,7 +67,6 @@ def get_total_percent(user_id: int, db: Session):
     return total_percent
                       
 def plans_insert(file: UploadFile, db: Session = Depends(get_db)):
-    print(f"Received file: {file.filename}, Content-Type: {file.content_type}")
 
     try:
         file.file.seek(0) 
