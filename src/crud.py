@@ -1,5 +1,6 @@
 from fastapi import Depends,HTTPException,status,UploadFile
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from src.db import get_db
 from src.models import Credit,Payment,Plan
 from datetime import date
@@ -82,16 +83,15 @@ def plans_insert(file: UploadFile, db: Session = Depends(get_db)):
     plans = []
 
     for _, row in df.iterrows():
-        for _, row in df.iterrows():
-            try:
-                plan_month = pd.to_datetime(row["місяць плану"]).date()
+        try:
+            plan_month = pd.to_datetime(row["місяць плану"]).date()
+            
+            if plan_month.day != 1:
+                raise ValueError(f"Invalid month format: day is not 1 ({plan_month})")
                 
-                if plan_month.day != 1:
-                    raise ValueError(f"Invalid month format: day is not 1 ({plan_month})")
-                    
-            except ValueError as e:
-                print(f"Error parsing date: {row['місяць плану']}, error: {str(e)}")
-                raise HTTPException(status_code=400, detail=f"Invalid month format: {row['місяць плану']}")
+        except ValueError as e:
+            print(f"Error parsing date: {row['місяць плану']}, error: {str(e)}")
+            raise HTTPException(status_code=400, detail=f"Invalid month format: {row['місяць плану']}")
 
         category = row["назва категорії плану"]
         amount = row["сума"]
